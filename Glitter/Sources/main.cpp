@@ -44,7 +44,8 @@ int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model mode
 		
 		for(int i = 0; i < numModels; i ++)
 		{
-			models[i] .setupToRender();
+			models[i] .setupToRender(); //Bind VAO of the object
+
 			//arg: primitive type to draw, how many indices to draw, type of the indices, offset in EBO (or pass in a index array); 
 			glDrawElements(GL_TRIANGLES, models[i].getNumIndices(), GL_UNSIGNED_INT, 0);
 		}
