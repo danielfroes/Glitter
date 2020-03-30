@@ -26,9 +26,14 @@ Model::Model(float vertices[], int sizeVertices, unsigned int indices[], int siz
 	//arg:  specifies which vertex attribute to configure (vertexShader => location = 0), 
 	//		how many values in the attribute, the type of each value, if we want the data to be normalized (0 to 1),
 	//		the stride (space between consecutive vertex attribute), the offset where the data begins in the buffer
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //tells how the input from VBO goes to each vertex attribute 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); //tells how the input from VBO goes to each vertex attribute 
 	glEnableVertexAttribArray(0); //enables the vertex attribute, giving the vertex attribute location.
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 }
+	
+	
 
 Model::~Model()
 {

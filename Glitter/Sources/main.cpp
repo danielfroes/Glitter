@@ -7,24 +7,81 @@
 #include <iostream>
 #include <cstdlib>
 
-
+int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model models[], int numModels);
 void processInput(GLFWwindow* window);
 unsigned int HandleShaderStuff();
 
-const char* vertexShaderSource = "#version 330 core\n"
+const char* vertexShaderSource = 
+"#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
+"layout (location = 1) in vec3 aColor;\n"
+"out vec3 vecColor;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   vecColor = aColor;\n"
 "}\0";
 
 
-const char* fragmentShaderSource = "#version 330 core\n"
+const char* fragmentShaderSource = 
+"#version 330 core\n"
+"in vec3 vecColor;\n"
 "out vec4 FragColor;\n"
+"uniform float modifier;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"   FragColor = modifier * vec4(vecColor, 1.0f);\n"
 "}\n\0";
+
+
+
+int main()
+{
+	//need to be at the top because it configure some GLFW sttuf
+	WindowHolder windowHolder;
+	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
+
+
+	//**Decidir oq fazer para se tem cor ou não
+	float vertices1[] = {
+	-0.25f,  0.25f, 0.0f, 0.8f, 0.6f, 0.6f, // top right
+	-0.25f, -0.25f, 0.0f, 0.7f, 0.6f, 0.6f,  // bottom right
+	-0.75f, -0.25f, 0.0f, 0.4f, 0.6f, 0.6f,  // bottom left
+	-0.75f,  0.25f, 0.0f, 0.1f, 0.6f, 0.6f // top left 
+	};
+	unsigned int indices1[] = {  // note that we start from 0!
+		0, 1, 3,   // first triangle
+		1, 2, 3    // second triangle
+	};
+
+	float vertices2[] = {
+	 0.25f,  0.25f, 0.0f, 1.0f, 0.0f, 0.0f, // top right
+	 0.25f, -0.25f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
+	 0.75f, -0.25f, 0.0f, 0.0f, 0.0f, 1.0f // bottom left
+	};
+
+	unsigned int indices2[] = {  // note that we start from 0!
+		0, 1, 3,   // first triangle
+	};
+
+
+	unsigned int shaderProgram = HandleShaderStuff();
+
+
+
+	Model modelsArr[] = {
+		Model(vertices1, sizeof(vertices1), indices1, sizeof(indices1)),
+		Model(vertices2, sizeof(vertices2), indices2, sizeof(indices2))
+	};
+
+	int numModels = sizeof(modelsArr) / sizeof(Model);
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	RenderLoop(windowHolder, shaderProgram, modelsArr, numModels);
+
+}
 
 
 int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model models[] , int numModels)
@@ -39,8 +96,12 @@ int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model mode
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //set the color that will clear the screen
 		glClear(GL_COLOR_BUFFER_BIT); //clear the color buffer
 
-
 		glUseProgram(shaderProgram);
+
+		float timeValue = glfwGetTime();
+		float value = (sin(timeValue) / 2.0f + 0.5f);
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "modifier");  //get the uniform location variable from the shader program
+		glUniform1f(vertexColorLocation,  value);   //set the uniform variable with our input
 		
 		for(int i = 0; i < numModels; i ++)
 		{
@@ -59,56 +120,6 @@ int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model mode
 	return 0;
 }
 
-
-int main()
-{
-	//need to be at the top because it configure some GLFW sttuf
-	WindowHolder windowHolder;
-	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
-
-
-	float vertices1[] = {
-	-0.25f,  0.25f, 0.0f,  // top right
-	-0.25f, -0.25f, 0.0f,  // bottom right
-	-0.75f, -0.25f, 0.0f,  // bottom left
-	-0.75f,  0.25f, 0.0f   // top left 
-	};
-	unsigned int indices1[] = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
-	};
-	
-	float vertices2[] = {
-	 0.25f,  0.25f, 0.0f,  // top right
-	 0.25f, -0.25f, 0.0f,  // bottom right
-	 0.75f, -0.25f, 0.0f,  // bottom left
-	 0.56f, -0.9, 0.0,
-	 0.4f, 0.3f, 0.0f,
-	};
-	unsigned int indices2[] = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
-		0, 3, 5,
-		0, 4, 1
-	};
-
-
-	unsigned int shaderProgram = HandleShaderStuff();
-
-
-
-	Model modelsArr[] = { 
-		Model(vertices1, sizeof(vertices1), indices1, sizeof(indices1)),
-		Model(vertices2, sizeof(vertices2), indices2, sizeof(indices2))
-	};
-	
-	int numModels = sizeof(modelsArr) / sizeof(Model);
-
-	
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	RenderLoop(windowHolder, shaderProgram, modelsArr, numModels);
-	
-}
 
 
 
