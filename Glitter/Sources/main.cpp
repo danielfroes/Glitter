@@ -1,5 +1,6 @@
 #include "WindowHolder.hpp"
 #include "Model.h"
+#include "Shader.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -7,36 +8,17 @@
 #include <iostream>
 #include <cstdlib>
 
-int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model models[], int numModels);
+#include <fstream>
+#include <sstream>
+
+int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[], int numModels);
 void processInput(GLFWwindow* window);
-unsigned int HandleShaderStuff();
-
-const char* vertexShaderSource = 
-"#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"layout (location = 1) in vec3 aColor;\n"
-"out vec3 vecColor;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"   vecColor = aColor;\n"
-"}\0";
-
-
-const char* fragmentShaderSource = 
-"#version 330 core\n"
-"in vec3 vecColor;\n"
-"out vec4 FragColor;\n"
-"uniform float modifier;\n"
-"void main()\n"
-"{\n"
-"   FragColor = modifier * vec4(vecColor, 1.0f);\n"
-"}\n\0";
 
 
 
 int main()
 {
+
 	//need to be at the top because it configure some GLFW sttuf
 	WindowHolder windowHolder;
 	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
@@ -65,9 +47,7 @@ int main()
 	};
 
 
-	unsigned int shaderProgram = HandleShaderStuff();
-
-
+	Shader ourShader("C:/Users/danie/Documents/OpenGL/Glitter/Shaders/vertexShader.glsl", "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/fragmentShader.glsl");
 
 	Model modelsArr[] = {
 		Model(vertices1, sizeof(vertices1), indices1, sizeof(indices1)),
@@ -79,12 +59,12 @@ int main()
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	RenderLoop(windowHolder, shaderProgram, modelsArr, numModels);
+	RenderLoop(windowHolder, ourShader, modelsArr, numModels);
 
 }
 
 
-int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model models[] , int numModels)
+int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[] , int numModels)
 {
 	// Render Loop
 	while (!glfwWindowShouldClose(windowHolder.getWindow()))
@@ -96,16 +76,15 @@ int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model mode
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //set the color that will clear the screen
 		glClear(GL_COLOR_BUFFER_BIT); //clear the color buffer
 
-		glUseProgram(shaderProgram);
+		ourShader.use();
 
 		float timeValue = glfwGetTime();
 		float value = (sin(timeValue) / 2.0f + 0.5f);
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "modifier");  //get the uniform location variable from the shader program
-		glUniform1f(vertexColorLocation,  value);   //set the uniform variable with our input
+		ourShader.setFloatUniform("modifier", value);
 		
 		for(int i = 0; i < numModels; i ++)
 		{
-			models[i] .setupToRender(); //Bind VAO of the object
+			models[i].setupToRender(); //Bind VAO of the object
 
 			//arg: primitive type to draw, how many indices to draw, type of the indices, offset in EBO (or pass in a index array); 
 			glDrawElements(GL_TRIANGLES, models[i].getNumIndices(), GL_UNSIGNED_INT, 0);
@@ -124,62 +103,6 @@ int RenderLoop(WindowHolder windowHolder, unsigned int shaderProgram, Model mode
 
 
 
-
-unsigned int HandleShaderStuff()
-{
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//shader handling
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);	 //create vertex shader object with a/ ID;
-	//arg: shader object to compile, how many string are we passing as source code, source code str, NULL; 
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);		//links the shader source to the shader object
-	glCompileShader(vertexShader);		//Compile shader
-
-	int  success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	unsigned int fragmentShader;
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);	 //create fragment shader object with a ID;
-	//arg: shader object to compile, how many string are we passing as source code, source code str, NULL; 
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);		//links the shader source to the shader object
-	glCompileShader(fragmentShader);	//Compile shader
-	// checks if the compilation was succesful
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-
-	unsigned int shaderProgam;
-	shaderProgam = glCreateProgram(); //create program object; 
-	glAttachShader(shaderProgam, vertexShader); //attach the compiled shader to the shader program object
-	glAttachShader(shaderProgam, fragmentShader);
-	glLinkProgram(shaderProgam);  // links the output and input of each shader
-
-	glGetProgramiv(shaderProgam, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-
-	glUseProgram(shaderProgam); //activate the shader program; the active shader program will be used when we issued render calls
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-
-	return shaderProgam;
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-}
 void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
