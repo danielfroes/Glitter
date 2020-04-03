@@ -37,13 +37,13 @@ int main()
 	};
 
 	float vertices2[] = {
-	 0.25f,  0.25f, 0.0f, 1.0f, 0.0f, 0.0f, // top right
-	 0.25f, -0.25f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
-	 0.75f, -0.25f, 0.0f, 0.0f, 0.0f, 1.0f // bottom left
+	 0.25f,  0.25f, 0.0f, 0.8f, 0.2f, 0.2f, // top right
+	 0.25f, -0.25f, 0.0f, 0.5f, 0.2f, 0.2f, // bottom right
+	 0.75f, -0.25f, 0.0f, 0.3f, 0.2f, 0.2f // bottom left
 	};
 
 	unsigned int indices2[] = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
+		0, 1, 2,   // first triangle
 	};
 
 
@@ -66,6 +66,7 @@ int main()
 
 int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[] , int numModels)
 {
+	float xOffset = 0;
 	// Render Loop
 	while (!glfwWindowShouldClose(windowHolder.getWindow()))
 	{
@@ -81,7 +82,7 @@ int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[] , int
 		float timeValue = glfwGetTime();
 		float value = (sin(timeValue) / 2.0f + 0.5f);
 		ourShader.setFloatUniform("modifier", value);
-		
+
 		for(int i = 0; i < numModels; i ++)
 		{
 			models[i].setupToRender(); //Bind VAO of the object
