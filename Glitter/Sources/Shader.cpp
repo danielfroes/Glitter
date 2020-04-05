@@ -1,13 +1,21 @@
 #include "Shader.h"
 
+
+Shader::Shader()
+{
+	Shader(_defaultVertexPath, _defaultFragmentPath);
+}
+
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
+
 	std::string vertexCode;
 	std::string fragmentCode;
-	
+
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
-	
+
 	//ensure ifstream objects can throw exceptions
 	vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -29,7 +37,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	}
 	catch (std::ifstream::failure e)
 	{
-		
+
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl << e.code() << std::endl;
 	}
 
@@ -54,7 +62,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	}
 
 	unsigned int fragment;
-	fragment= glCreateShader(GL_FRAGMENT_SHADER);	 //create fragment shader object with a ID;
+	fragment = glCreateShader(GL_FRAGMENT_SHADER);	 //create fragment shader object with a ID;
 	//arg: shader object to compile, how many string are we passing as source code, source code str, NULL; 
 	glShaderSource(fragment, 1, &fShaderCode, NULL);		//links the shader source to the shader object
 	glCompileShader(fragment);	//Compile shader
@@ -67,7 +75,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 
-	
+
 	ID = glCreateProgram(); //create program object; 
 	glAttachShader(ID, vertex); //attach the compiled shader to the shader program object
 	glAttachShader(ID, fragment);
@@ -85,6 +93,13 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	glDeleteShader(fragment);
 
 }
+
+
+void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
+{
+}
+
+
 
 
 void Shader::use()

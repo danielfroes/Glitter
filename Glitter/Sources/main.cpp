@@ -46,9 +46,7 @@ int main()
 		0, 1, 2,   // first triangle
 	};
 
-
-	Shader ourShader("Default/defaultVertex.glsl",
-					 "Default/defaultFragment.glsl");
+	Shader ourShader;
 
 	Model modelsArr[] = {
 		Model(vertices1, sizeof(vertices1), indices1, sizeof(indices1)),
@@ -67,7 +65,7 @@ int main()
 
 int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[] , int numModels)
 {
-	float xOffset = 0;
+	//float xOffset = 0;
 	// Render Loop
 	while (!glfwWindowShouldClose(windowHolder.getWindow()))
 	{
