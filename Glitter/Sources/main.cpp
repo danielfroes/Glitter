@@ -47,7 +47,8 @@ int main()
 	};
 
 
-	Shader ourShader("C:/Users/danie/Documents/OpenGL/Glitter/Shaders/vertexShader.glsl", "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/fragmentShader.glsl");
+	Shader ourShader("Default/defaultVertex.glsl",
+					 "Default/defaultFragment.glsl");
 
 	Model modelsArr[] = {
 		Model(vertices1, sizeof(vertices1), indices1, sizeof(indices1)),
@@ -79,9 +80,9 @@ int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[] , int
 
 		ourShader.use();
 
-		float timeValue = glfwGetTime();
+		/*float timeValue = glfwGetTime();
 		float value = (sin(timeValue) / 2.0f + 0.5f);
-		ourShader.setFloatUniform("modifier", value);
+		ourShader.setFloatUniform("modifier", value);*/
 
 		for(int i = 0; i < numModels; i ++)
 		{
