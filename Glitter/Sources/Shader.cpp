@@ -3,13 +3,27 @@
 
 Shader::Shader()
 {
-	Shader(_defaultVertexPath, _defaultFragmentPath);
+	setupShader(_defaultVertexPath, _defaultFragmentPath);
+	
 }
-
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
 
+	setupShader(vertexPath, fragmentPath);
+
+}
+
+Shader::Shader(const char* vertexPath, const char* fragmentPath, float (*customCalback)())
+{
+	uniformCallback = customCalback;
+	setupShader(vertexPath, fragmentPath);
+
+}
+
+
+void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
+{
 	std::string vertexCode;
 	std::string fragmentCode;
 
@@ -91,13 +105,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	glUseProgram(ID); //activate the shader program; the active shader program will be used when we issued render calls
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
-
 }
 
-
-void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
-{
-}
 
 
 
@@ -105,7 +114,19 @@ void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
 void Shader::use()
 {
 	glUseProgram(ID);
+
+	//** Generilzar Chama a função do uniform
+	if (uniformCallback != NULL)
+	{
+		std::cout << uniformCallback() << std::endl;
+		setFloatUniform("modifier", uniformCallback());
+	}
+	else
+		std::cout << "no callback" << std::endl; 
 }
+
+
+
 
 void Shader::setBoolUniform(const std::string& name, bool value) const
 {

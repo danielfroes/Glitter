@@ -1,11 +1,21 @@
 #include "Model.h"
 
-
+//** fazer o shader ficar como um default: (..., Shader customShader = Shader())
+Model::Model(float vertices[], int sizeVertices, unsigned int indices[], int sizeIndices, Shader customShader )
+{
+	_shader = customShader;
+	_setupBuffers(vertices, sizeVertices, indices, sizeIndices);
+}
 
 Model::Model(float vertices[], int sizeVertices, unsigned int indices[], int sizeIndices)
 {
-	
+	_shader = Shader();
+	_setupBuffers(vertices, sizeVertices, indices, sizeIndices);
+}
 
+
+void Model::_setupBuffers(float vertices[], int sizeVertices, unsigned int indices[], int sizeIndices)
+{
 	glGenBuffers(1, &_VBO);		//Generates a Vertex Buffer Array with a buffer id
 	glGenVertexArrays(1, &_VAO);	//Vertex array object: store the configuration state of the binded vertex buffer
 	glGenBuffers(1, &_EBO);  //Generate a Element Buffer Object: stores the vertex indices of each primittive
@@ -32,18 +42,10 @@ Model::Model(float vertices[], int sizeVertices, unsigned int indices[], int siz
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 }
-	
-	
-
-Model::~Model()
-{
-
-
-}
-
 
 void Model::setupToRender()
 {
+	_shader.use();
 	glBindVertexArray(_VAO);
 }
 
@@ -51,3 +53,5 @@ int Model::getNumIndices()
 {
 	return _sizeIndices / sizeof(unsigned int);
 }
+
+Model::~Model(){}

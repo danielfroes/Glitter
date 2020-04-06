@@ -11,13 +11,18 @@
 #include <fstream>
 #include <sstream>
 
-int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[], int numModels);
+int RenderLoop(WindowHolder windowHolder, /*Shader ourShader,*/ Model models[], int numModels);
 void processInput(GLFWwindow* window);
 
 
+float uniformTestfunc()
+{
+	float timeValue = glfwGetTime();
+	return (sin(timeValue) / 2.0f) + 0.5f;
+}
 
 int main()
-{
+{ 
 
 	//need to be at the top because it configure some GLFW sttuf
 	WindowHolder windowHolder;
@@ -46,11 +51,11 @@ int main()
 		0, 1, 2,   // first triangle
 	};
 
-	Shader ourShader;
+	Shader ourShader("vertexShader.glsl", "fragmentShader.glsl", uniformTestfunc);
 
 	Model modelsArr[] = {
-		Model(vertices1, sizeof(vertices1), indices1, sizeof(indices1)),
-		Model(vertices2, sizeof(vertices2), indices2, sizeof(indices2))
+		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), ourShader}, //retangulo
+		Model(vertices2, sizeof(vertices2), indices2, sizeof(indices2), ourShader) //triangulo
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
@@ -58,32 +63,35 @@ int main()
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	RenderLoop(windowHolder, ourShader, modelsArr, numModels);
+	RenderLoop(windowHolder, /*ourShader,*/ modelsArr, numModels);
 
 }
 
 
-int RenderLoop(WindowHolder windowHolder, Shader ourShader, Model models[] , int numModels)
+
+
+int RenderLoop(WindowHolder windowHolder,/* Shader ourShader,*/ Model models[] , int numModels)
 {
-	//float xOffset = 0;
-	// Render Loop
 	while (!glfwWindowShouldClose(windowHolder.getWindow()))
 	{
 		//input
 		processInput(windowHolder.getWindow());
 
-		//rendering commands
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //set the color that will clear the screen
+		//rendering commands//**talvez colocor no windowHolder
+		glClearColor(0.8f, 0.8f, 1.0f, 1.0f); //set the color that will clear the screen
 		glClear(GL_COLOR_BUFFER_BIT); //clear the color buffer
 
-		ourShader.use();
+		//ourShader.use();
 
-		/*float timeValue = glfwGetTime();
-		float value = (sin(timeValue) / 2.0f + 0.5f);
-		ourShader.setFloatUniform("modifier", value);*/
+
+		//float timeValue = glfwGetTime();
+		//float modifier = (sin(timeValue) / 2.0f) + 0.5f;
+		
 
 		for(int i = 0; i < numModels; i ++)
 		{
+
+			//**PROBLEMA, Nâo quero fazer um if pra cada
 			models[i].setupToRender(); //Bind VAO of the object
 
 			//arg: primitive type to draw, how many indices to draw, type of the indices, offset in EBO (or pass in a index array); 
