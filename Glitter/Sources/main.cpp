@@ -15,10 +15,13 @@ int RenderLoop(WindowHolder windowHolder, /*Shader ourShader,*/ Model models[], 
 void processInput(GLFWwindow* window);
 
 
-float uniformTestfunc()
+void Shader_BlinkingScript(unsigned int ID)
 {
 	float timeValue = glfwGetTime();
-	return (sin(timeValue) / 2.0f) + 0.5f;
+	float value = (sin(timeValue) / 2.0f) + 0.5f;
+
+	unsigned int uniformLocation = glGetUniformLocation(ID, "modifier");
+	glUniform1f(uniformLocation, value);
 }
 
 int main()
@@ -30,7 +33,7 @@ int main()
 
 
 	//**Decidir oq fazer para se tem cor ou não
-	float vertices1[] = {
+	float vertices1[] = { // Retangulo
 	-0.25f,  0.25f, 0.0f, 0.8f, 0.6f, 0.6f, // top right
 	-0.25f, -0.25f, 0.0f, 0.7f, 0.6f, 0.6f,  // bottom right
 	-0.75f, -0.25f, 0.0f, 0.4f, 0.6f, 0.6f,  // bottom left
@@ -41,7 +44,7 @@ int main()
 		1, 2, 3    // second triangle
 	};
 
-	float vertices2[] = {
+	float vertices2[] = { //Triangulo
 	 0.25f,  0.25f, 0.0f, 0.8f, 0.2f, 0.2f, // top right
 	 0.25f, -0.25f, 0.0f, 0.5f, 0.2f, 0.2f, // bottom right
 	 0.75f, -0.25f, 0.0f, 0.3f, 0.2f, 0.2f // bottom left
@@ -51,10 +54,14 @@ int main()
 		0, 1, 2,   // first triangle
 	};
 
-	Shader ourShader("vertexShader.glsl", "fragmentShader.glsl", uniformTestfunc);
+	Shader ourShader(
+					 "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/vertexShader.glsl",
+					 "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/fragmentShader.glsl",
+					  Shader_BlinkingScript
+					);
 
 	Model modelsArr[] = {
-		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), ourShader}, //retangulo
+		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1)}, //retangulo
 		Model(vertices2, sizeof(vertices2), indices2, sizeof(indices2), ourShader) //triangulo
 	};
 

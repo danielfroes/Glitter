@@ -7,14 +7,14 @@ Shader::Shader()
 	
 }
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
-{
+//Shader::Shader(const char* vertexPath, const char* fragmentPath)
+//{
+//
+//	setupShader(vertexPath, fragmentPath);
+//
+//}
 
-	setupShader(vertexPath, fragmentPath);
-
-}
-
-Shader::Shader(const char* vertexPath, const char* fragmentPath, float (*customCalback)())
+Shader::Shader(const char* vertexPath, const char* fragmentPath, void (*customCalback)(unsigned int ID) = NULL)
 {
 	uniformCallback = customCalback;
 	setupShader(vertexPath, fragmentPath);
@@ -118,8 +118,8 @@ void Shader::use()
 	//** Generilzar Chama a função do uniform
 	if (uniformCallback != NULL)
 	{
-		std::cout << uniformCallback() << std::endl;
-		setFloatUniform("modifier", uniformCallback());
+		std::cout << "callback called "<< std::endl;
+		uniformCallback(ID);
 	}
 	else
 		std::cout << "no callback" << std::endl; 

@@ -18,7 +18,7 @@ class Shader
 		unsigned int ID;
 		
 		Shader(const char* vertexPath , const char* fragmentPath);
-		Shader(const char* vertexPath, const char* fragmentPath, float (*uniformCalback)());
+		Shader(const char* vertexPath, const char* fragmentPath, void (*uniformCalback)(unsigned int ID));
 		Shader();
 		void use();
 		
@@ -28,14 +28,14 @@ class Shader
 
 
 		//**Generalizar 
-		float (*uniformCallback)() {};
+		void (*uniformCallback)(unsigned int ID) {};
 
 	private:
 		void setupShader(const char* vertexPath, const char* fragmentPath);
-		/*const char* _defaultVertexPath = "../Glitter/Shaders/Default/defaultVertex.glsl";
-		const char* _defaultFragmentPath = "../Glitter/Shaders/Default/defaultFragment.glsl";*/
-		const char* _defaultVertexPath = "Default/defaultVertex.glsl";
-		const char* _defaultFragmentPath = "Default/defaultFragment.glsl";
+		const char* _defaultVertexPath = "../Glitter/Shaders/Default/defaultVertex.glsl";
+		const char* _defaultFragmentPath = "../Glitter/Shaders/Default/defaultFragment.glsl";
+	/*	const char* _defaultVertexPath = "Default/defaultVertex.glsl";
+		const char* _defaultFragmentPath = "Default/defaultFragment.glsl";*/
 };
 
 
