@@ -32,6 +32,17 @@ int main()
 	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
 
 
+	float bgPanelVert[] = {
+		-1.0f, -1.0f, 0.0f, 0.8f, 0.6f, 0.6f, // right - bot
+		1.0f, -1.0f, 0.0f,  0.7f, 0.6f, 0.6f, //left - bot
+		-1.0f, 1.0f, 0.0f, 0.4f, 0.6f, 0.6f, // right - top
+		1.0f, 1.0f, 0.0f, 0.1f, 0.6f, 0.6f //left top
+	};
+	unsigned int bgPanelIndex[] = {
+		0, 1, 2,
+		1, 2, 3
+	};
+
 	//**Decidir oq fazer para se tem cor ou não
 	float vertices1[] = { // Retangulo
 	-0.25f,  0.25f, 0.0f, 0.8f, 0.6f, 0.6f, // top right
@@ -44,10 +55,11 @@ int main()
 		1, 2, 3    // second triangle
 	};
 
+
 	float vertices2[] = { //Triangulo
-	 0.25f,  0.25f, 0.0f, 0.8f, 0.2f, 0.2f, // top right
-	 0.25f, -0.25f, 0.0f, 0.5f, 0.2f, 0.2f, // bottom right
-	 0.75f, -0.25f, 0.0f, 0.3f, 0.2f, 0.2f // bottom left
+	 -0.25f,  -0.5f, 0.0f, 0.8f, 0.2f, 0.2f, // top
+	 0.75f, -0.5f, 0.0f, 0.5f, 0.2f, 0.2f, // bottom right
+	 0.25f, 0.5f, 0.0f, 0.3f, 0.2f, 0.2f // bottom left
 	};
 
 	unsigned int indices2[] = {  // note that we start from 0!
@@ -61,8 +73,9 @@ int main()
 					);
 
 	Model modelsArr[] = {
+		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex), ourShader},
 		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1)}, //retangulo
-		Model(vertices2, sizeof(vertices2), indices2, sizeof(indices2), ourShader) //triangulo
+		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), ourShader }//triangulo
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
@@ -88,12 +101,7 @@ int RenderLoop(WindowHolder windowHolder,/* Shader ourShader,*/ Model models[] ,
 		glClearColor(0.8f, 0.8f, 1.0f, 1.0f); //set the color that will clear the screen
 		glClear(GL_COLOR_BUFFER_BIT); //clear the color buffer
 
-		//ourShader.use();
-
-
-		//float timeValue = glfwGetTime();
-		//float modifier = (sin(timeValue) / 2.0f) + 0.5f;
-		
+		//
 
 		for(int i = 0; i < numModels; i ++)
 		{

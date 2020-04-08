@@ -115,7 +115,8 @@ void Shader::use()
 {
 	glUseProgram(ID);
 
-	//** Generilzar Chama a função do uniform
+	
+	//** Não esta completamente abstraida. O usuário ainda tem que chamar as funções de glUniform bla bla bla na função de callback;
 	if (uniformCallback != NULL)
 	{
 		std::cout << "callback called "<< std::endl;
