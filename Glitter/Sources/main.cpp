@@ -7,9 +7,8 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
-
-#include <fstream>
-#include <sstream>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 int RenderLoop(WindowHolder windowHolder, /*Shader ourShader,*/ Model models[], int numModels);
 void processInput(GLFWwindow* window);
@@ -31,7 +30,7 @@ int main()
 	WindowHolder windowHolder;
 	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
 
-
+//############################################################################################################
 	float bgPanelVert[] = {
 		-1.0f, -1.0f, 0.0f, 0.8f, 0.6f, 0.6f, // right - bot
 		1.0f, -1.0f, 0.0f,  0.7f, 0.6f, 0.6f, //left - bot
@@ -65,6 +64,36 @@ int main()
 	unsigned int indices2[] = {  // note that we start from 0!
 		0, 1, 2,   // first triangle
 	};
+//############################################################################################################
+
+	//generating a texture object
+	unsigned int texture;
+	glGenTextures(1, &texture); // args: how many textures we want to generate and then stores it in a array;
+	glBindTexture(GL_TEXTURE_2D, texture); //bind a texture object to be configured with the target of 2D texture
+	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	int width, height, nrColorChannels;
+	unsigned char* imgData = stbi_load("C:/Users/danie/Documents/OpenGL/Glitter/Textures/container.jpg", &width, &height, &nrColorChannels, 0);
+
+	if (imgData)
+	{
+		//Arg: Texture target, mipmap level (if needed to set manually), format we want to store the texture (our img has only RGB values), ...
+		//... Width of tex, Height of tex, ALWAYS ZERO (some legacy stuff), format of the loaded img, data type of the loaded img (chars = bytes), img data itself
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imgData); //put the texture data in the currently bound texture object
+		glGenerateMipmap(GL_TEXTURE_2D); //generate all the mipmaps for the currently bound texture;
+	}
+	else
+	{
+		std::cout << "ERROR::FAILED_TO_LOAD_TEXTURE" << std::endl;
+	}
+	stbi_image_free(imgData);
+
+//###############################################################################################################
+
 
 	Shader ourShader(
 					 "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/vertexShader.glsl",
@@ -80,8 +109,7 @@ int main()
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
 
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	RenderLoop(windowHolder, /*ourShader,*/ modelsArr, numModels);
 
@@ -121,6 +149,7 @@ int RenderLoop(WindowHolder windowHolder,/* Shader ourShader,*/ Model models[] ,
 	//glfwTerminate();	//clean all the GLFW's resources that were allocated
 	return 0;
 }
+
 
 
 
