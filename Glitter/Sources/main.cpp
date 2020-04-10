@@ -10,7 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-int RenderLoop(WindowHolder windowHolder, /*Shader ourShader,*/ Model models[], int numModels);
+int RenderLoop(WindowHolder windowHolder, unsigned int texture, Model models[], int numModels);
 void processInput(GLFWwindow* window);
 
 
@@ -24,18 +24,18 @@ void Shader_BlinkingScript(unsigned int ID)
 }
 
 int main()
-{ 
+{
 
 	//need to be at the top because it configure some GLFW sttuf
 	WindowHolder windowHolder;
 	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
 
-//############################################################################################################
+	//############################################################################################################
 	float bgPanelVert[] = {
-		-1.0f, -1.0f, 0.0f, 0.8f, 0.6f, 0.6f, // right - bot
-		1.0f, -1.0f, 0.0f,  0.7f, 0.6f, 0.6f, //left - bot
-		-1.0f, 1.0f, 0.0f, 0.4f, 0.6f, 0.6f, // right - top
-		1.0f, 1.0f, 0.0f, 0.1f, 0.6f, 0.6f //left top
+		-1.0f, -1.0f, 0.0f, 0.8f, 0.6f, 0.6f, 0.0f, 0.0f,// left - bot
+		1.0f, -1.0f, 0.0f,  0.7f, 0.6f, 0.6f, 5.0f, 0.0f,//right - bot
+		-1.0f, 1.0f, 0.0f, 0.4f, 0.6f, 0.6f, 0.0f, 5.0f,// left - top
+		1.0f, 1.0f, 0.0f, 0.1f, 0.6f, 0.6f, 5.0f, 5.0f//right - top
 	};
 	unsigned int bgPanelIndex[] = {
 		0, 1, 2,
@@ -43,34 +43,34 @@ int main()
 	};
 
 	//**Decidir oq fazer para se tem cor ou não
-	float vertices1[] = { // Retangulo
-	-0.25f,  0.25f, 0.0f, 0.8f, 0.6f, 0.6f, // top right
-	-0.25f, -0.25f, 0.0f, 0.7f, 0.6f, 0.6f,  // bottom right
-	-0.75f, -0.25f, 0.0f, 0.4f, 0.6f, 0.6f,  // bottom left
-	-0.75f,  0.25f, 0.0f, 0.1f, 0.6f, 0.6f // top left 
+	float vertices1[] = { // Retangulo (Pos-3, Color-3, Texture-2)
+	-0.25f,  0.25f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // top right
+	-0.25f, -0.25f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,// bottom right
+	-0.75f, -0.25f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,// bottom left
+	-0.75f,  0.25f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f// top left 
 	};
 	unsigned int indices1[] = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
+		1, 0, 2,   // first triangle
+		2, 3, 0    // second triangle
 	};
 
 
 	float vertices2[] = { //Triangulo
-	 -0.25f,  -0.5f, 0.0f, 0.8f, 0.2f, 0.2f, // top
-	 0.75f, -0.5f, 0.0f, 0.5f, 0.2f, 0.2f, // bottom right
-	 0.25f, 0.5f, 0.0f, 0.3f, 0.2f, 0.2f // bottom left
+	 -0.25f,  -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, 0.0f, 0.0, // bottom left
+	 0.75f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,// bottom right
+	 0.25f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f // top
 	};
 
 	unsigned int indices2[] = {  // note that we start from 0!
 		0, 1, 2,   // first triangle
 	};
-//############################################################################################################
+	//############################################################################################################
 
-	//generating a texture object
+		//generating a texture object
 	unsigned int texture;
 	glGenTextures(1, &texture); // args: how many textures we want to generate and then stores it in a array;
 	glBindTexture(GL_TEXTURE_2D, texture); //bind a texture object to be configured with the target of 2D texture
-	
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -92,33 +92,40 @@ int main()
 	}
 	stbi_image_free(imgData);
 
-//###############################################################################################################
+	//###############################################################################################################
 
 
-	Shader ourShader(
-					 "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/vertexShader.glsl",
-					 "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/fragmentShader.glsl",
-					  Shader_BlinkingScript
-					);
+	Shader blinkingShader{
+		"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/vertexShader.glsl",
+		"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/fragmentShader.glsl",
+		Shader_BlinkingScript
+	};
+
+	//** default parameter of callback not working
+	Shader textureShader{
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/vertexShader.glsl",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/fragmentShader.glsl",
+						NULL
+	};
 
 	Model modelsArr[] = {
-		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex), ourShader},
-		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1)}, //retangulo
-		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), ourShader }//triangulo
+		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex), textureShader},
+		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), textureShader},//retangulo
+		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), blinkingShader }//triangulo
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	RenderLoop(windowHolder, /*ourShader,*/ modelsArr, numModels);
+	RenderLoop(windowHolder, texture, modelsArr, numModels);
 
 }
 
 
 
 
-int RenderLoop(WindowHolder windowHolder,/* Shader ourShader,*/ Model models[] , int numModels)
+int RenderLoop(WindowHolder windowHolder, unsigned int texture, Model models[] , int numModels)
 {
 	while (!glfwWindowShouldClose(windowHolder.getWindow()))
 	{
@@ -133,10 +140,8 @@ int RenderLoop(WindowHolder windowHolder,/* Shader ourShader,*/ Model models[] ,
 
 		for(int i = 0; i < numModels; i ++)
 		{
-
-			//**PROBLEMA, Nâo quero fazer um if pra cada
 			models[i].setupToRender(); //Bind VAO of the object
-
+			glBindTexture(GL_TEXTURE_2D, texture);
 			//arg: primitive type to draw, how many indices to draw, type of the indices, offset in EBO (or pass in a index array); 
 			glDrawElements(GL_TRIANGLES, models[i].getNumIndices(), GL_UNSIGNED_INT, 0);
 		}

@@ -119,11 +119,9 @@ void Shader::use()
 	//** Não esta completamente abstraida. O usuário ainda tem que chamar as funções de glUniform bla bla bla na função de callback;
 	if (uniformCallback != NULL)
 	{
-		std::cout << "callback called "<< std::endl;
 		uniformCallback(ID);
 	}
-	else
-		std::cout << "no callback" << std::endl; 
+	
 }
 
 
