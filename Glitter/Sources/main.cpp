@@ -10,7 +10,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-int RenderLoop(WindowHolder windowHolder, unsigned int texture, Model models[], int numModels);
+
+int RenderLoop(WindowHolder windowHolder, unsigned int texture1, unsigned int texture2, Model models[], int numModels);
 void processInput(GLFWwindow* window);
 
 
@@ -21,6 +22,15 @@ void Shader_BlinkingScript(unsigned int ID)
 
 	unsigned int uniformLocation = glGetUniformLocation(ID, "modifier");
 	glUniform1f(uniformLocation, value);
+}
+
+//** esse callback é so necessario chamar 1 vez (antes do loop)
+void Shader_TextureScript(unsigned int ID)
+{
+	unsigned int uniformLocation = glGetUniformLocation(ID, "texture1");
+	glUniform1i(uniformLocation, 0);
+	uniformLocation = glGetUniformLocation(ID, "texture2");
+	glUniform1i(uniformLocation, 1);
 }
 
 int main()
@@ -65,11 +75,16 @@ int main()
 		0, 1, 2,   // first triangle
 	};
 	//############################################################################################################
+	
+	//flip the y axis of all the images that will be loaded to match with the opengl coord system
+	stbi_set_flip_vertically_on_load(true);
 
 		//generating a texture object
-	unsigned int texture;
-	glGenTextures(1, &texture); // args: how many textures we want to generate and then stores it in a array;
-	glBindTexture(GL_TEXTURE_2D, texture); //bind a texture object to be configured with the target of 2D texture
+	unsigned int texture1;
+	glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+	glGenTextures(1, &texture1); // args: how many textures we want to generate and then stores it in a array;
+	glBindTexture(GL_TEXTURE_2D, texture1); //bind a texture object to be configured with the target of 2D texture
+
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -92,20 +107,46 @@ int main()
 	}
 	stbi_image_free(imgData);
 
+	unsigned int texture2;
+	glActiveTexture(GL_TEXTURE1); // activate the texture unit first before binding texture
+	glGenTextures(1, &texture2); // args: how many textures we want to generate and then stores it in a array;
+	glBindTexture(GL_TEXTURE_2D, texture2); //bind a texture object to be configured with the target of 2D texture
+
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	width, height, nrColorChannels;
+	imgData = stbi_load("C:/Users/danie/Documents/OpenGL/Glitter/Textures/awesomeface.png", &width, &height, &nrColorChannels, 0);
+
+	if (imgData)
+	{
+		///                                                      GL_RGBA: specifies the alpha channel in the img
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData); //put the texture data in the currently bound texture object
+		glGenerateMipmap(GL_TEXTURE_2D); //generate all the mipmaps for the currently bound texture;
+	}
+	else
+	{
+		std::cout << "ERROR::FAILED_TO_LOAD_TEXTURE" << std::endl;
+	}
+	stbi_image_free(imgData);
+
 	//###############################################################################################################
 
 
 	Shader blinkingShader{
-		"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/vertexShader.glsl",
-		"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/fragmentShader.glsl",
-		Shader_BlinkingScript
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinkingVertex.glsl",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinkingFragment.glsl",
+						Shader_BlinkingScript
 	};
 
 	//** default parameter of callback not working
 	Shader textureShader{
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/vertexShader.glsl",
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/fragmentShader.glsl",
-						NULL
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureVertex.glsl",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureFragment.glsl",
+						Shader_TextureScript
 	};
 
 	Model modelsArr[] = {
@@ -118,14 +159,14 @@ int main()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	RenderLoop(windowHolder, texture, modelsArr, numModels);
+	RenderLoop(windowHolder, texture1, texture2, modelsArr, numModels);
 
 }
 
 
 
 
-int RenderLoop(WindowHolder windowHolder, unsigned int texture, Model models[] , int numModels)
+int RenderLoop(WindowHolder windowHolder, unsigned int texture1, unsigned int texture2, Model models[] , int numModels)
 {
 	while (!glfwWindowShouldClose(windowHolder.getWindow()))
 	{
@@ -139,9 +180,15 @@ int RenderLoop(WindowHolder windowHolder, unsigned int texture, Model models[] ,
 		//
 
 		for(int i = 0; i < numModels; i ++)
-		{
+		{	
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture1);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, texture2);
+
+
 			models[i].setupToRender(); //Bind VAO of the object
-			glBindTexture(GL_TEXTURE_2D, texture);
+			
 			//arg: primitive type to draw, how many indices to draw, type of the indices, offset in EBO (or pass in a index array); 
 			glDrawElements(GL_TRIANGLES, models[i].getNumIndices(), GL_UNSIGNED_INT, 0);
 		}

@@ -32,8 +32,8 @@ class Shader
 
 	private:
 		void setupShader(const char* vertexPath, const char* fragmentPath);
-		const char* _defaultVertexPath = "../Glitter/Shaders/Default/defaultVertex.glsl";
-		const char* _defaultFragmentPath = "../Glitter/Shaders/Default/defaultFragment.glsl";
+		const char* _defaultVertexPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultVertex.glsl";
+		const char* _defaultFragmentPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultFragment.glsl";
 	/*	const char* _defaultVertexPath = "Default/defaultVertex.glsl";
 		const char* _defaultFragmentPath = "Default/defaultFragment.glsl";*/
 };
