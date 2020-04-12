@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "Texture.hpp"
 
 
 class Shader
@@ -19,6 +20,8 @@ class Shader
 		
 		//Shader(const char* vertexPath , const char* fragmentPath);
 		Shader(const char* vertexPath, const char* fragmentPath, void (*uniformCalback)(unsigned int ID));
+
+		Shader(const char* vertexPath, const char* fragmentPath, Texture texture, void (*uniformCalback)(unsigned int ID));
 		Shader();
 		void use();
 		
@@ -27,11 +30,15 @@ class Shader
 		void setIntUniform(const std::string& name, int value) const;
 
 
-		//**Generalizar 
-		void (*uniformCallback)(unsigned int ID) {};
+		
 
 	private:
 		void setupShader(const char* vertexPath, const char* fragmentPath);
+
+		Texture* _texture = NULL;
+		//**Generalizar 
+		void (*_uniformCallback)(unsigned int ID) {};
+
 		const char* _defaultVertexPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultVertex.glsl";
 		const char* _defaultFragmentPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultFragment.glsl";
 	/*	const char* _defaultVertexPath = "Default/defaultVertex.glsl";
