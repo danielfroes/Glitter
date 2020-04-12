@@ -18,7 +18,7 @@ void processInput(GLFWwindow* window);
 void Shader_BlinkingScript(unsigned int ID)
 {
 	float timeValue = glfwGetTime();
-	float value = (sin(timeValue) / 2.0f) + 0.5f;
+	float value = (sin(timeValue) / 2.0f) + 0.5f; // goes 1 to 0 back and forth
 
 	unsigned int uniformLocation = glGetUniformLocation(ID, "modifier");
 	glUniform1f(uniformLocation, value);
@@ -27,10 +27,16 @@ void Shader_BlinkingScript(unsigned int ID)
 //** esse callback é so necessario chamar 1 vez (antes do loop)
 void Shader_TextureScript(unsigned int ID)
 {
-	unsigned int uniformLocation = glGetUniformLocation(ID, "texture1");
+	unsigned int uniformLocation = glGetUniformLocation(ID, "ourTexture1");
 	glUniform1i(uniformLocation, 0);
-	uniformLocation = glGetUniformLocation(ID, "texture2");
+	uniformLocation = glGetUniformLocation(ID, "ourTexture2");
 	glUniform1i(uniformLocation, 1);
+
+	float timeValue = glfwGetTime();
+	float value = (sin(timeValue) / 2.0f) + 0.5f; // goes 1 to 0 back and forth
+	
+	uniformLocation = glGetUniformLocation(ID, "interpolationValue");
+	glUniform1f(uniformLocation, value);
 }
 
 int main()
@@ -68,7 +74,7 @@ int main()
 	float vertices2[] = { //Triangulo
 	 -0.25f,  -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, 0.0f, 0.0, // bottom left
 	 0.75f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,// bottom right
-	 0.25f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 0.5f // top
+	 0.25f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.5f, 1.0f // top
 	};
 
 	unsigned int indices2[] = {  // note that we start from 0!
@@ -85,9 +91,10 @@ int main()
 	glGenTextures(1, &texture1); // args: how many textures we want to generate and then stores it in a array;
 	glBindTexture(GL_TEXTURE_2D, texture1); //bind a texture object to be configured with the target of 2D texture
 
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	float borderColor[] = { 0.5f, 1.0f, 0.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -112,9 +119,8 @@ int main()
 	glGenTextures(1, &texture2); // args: how many textures we want to generate and then stores it in a array;
 	glBindTexture(GL_TEXTURE_2D, texture2); //bind a texture object to be configured with the target of 2D texture
 
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -150,9 +156,9 @@ int main()
 	};
 
 	Model modelsArr[] = {
-		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex), textureShader},
+		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex)},
 		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), textureShader},//retangulo
-		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), blinkingShader }//triangulo
+		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), textureShader }//triangulo
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
@@ -185,7 +191,6 @@ int RenderLoop(WindowHolder windowHolder, unsigned int texture1, unsigned int te
 			glBindTexture(GL_TEXTURE_2D, texture1);
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, texture2);
-
 
 			models[i].setupToRender(); //Bind VAO of the object
 			
