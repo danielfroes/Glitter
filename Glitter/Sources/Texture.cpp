@@ -1,19 +1,21 @@
 #include "Texture.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 Texture::Texture(const char* texturePath)
 {
 	//flip the y axis of all the images that will be loaded to match with the opengl coord system
 	stbi_set_flip_vertically_on_load(true);
 
+
 	//generating a texture object
-	glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
+	//glActiveTexture(GL_TEXTURE0 + n); // activate the texture unit first before binding texture
 	glGenTextures(1, &_texObj); // args: how many textures we want to generate and then stores it in a array;
 	glBindTexture(GL_TEXTURE_2D, _texObj); //bind a texture object to be configured with the target of 2D texture
 
-	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -37,9 +39,11 @@ Texture::Texture(const char* texturePath)
 
 void Texture::ActivateTexture()
 {
-	glActiveTexture(GL_TEXTURE0);
+	//glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _texObj);
 	
 	/*glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, texture2);*/
 }
+
+Texture::~Texture(){}

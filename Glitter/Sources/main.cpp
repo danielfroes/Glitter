@@ -7,8 +7,7 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
-//#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+
 
 
 int RenderLoop(WindowHolder windowHolder, Model models[], int numModels);
@@ -84,8 +83,8 @@ int main()
 
 	
 
-	Texture containerTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/container.jpg" };
-	//Texture awesomeFaceTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/awesomeFace.png" };
+	Texture containerTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/container.jpg"};
+	Texture dogTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/dog.jpg"};
 	Shader blinkingShader{
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinkingVertex.glsl",
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinkingFragment.glsl",
@@ -97,20 +96,20 @@ int main()
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureVertex.glsl",
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureFragment.glsl",
 						containerTex,
-						Shader_TextureScript
+						NULL
 	};
 
-	/*Shader awesomeShader{
+	Shader dogShader{
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureVertex.glsl",
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureFragment.glsl",
-						awesomeFaceTex,
-						Shader_TextureScript
-	};*/
+						dogTex,
+						NULL
+	};
 
 	Model modelsArr[] = {
 		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex)},
 		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), containerShader},//retangulo
-		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), containerShader }//triangulo
+		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), dogShader }//triangulo
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
