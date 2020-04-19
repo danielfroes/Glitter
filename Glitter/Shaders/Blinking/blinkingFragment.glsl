@@ -2,11 +2,9 @@
 
 in vec3 ourColor;
 
-
 out vec4 FragColor;  
 
 uniform float modifier;
-uniform sampler2D ourTexture;
 
 void main()
 {

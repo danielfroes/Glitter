@@ -23,6 +23,7 @@ void Shader_BlinkingScript(unsigned int ID)
 	glUniform1f(uniformLocation, value);
 }
 
+
 //** esse callback é so necessario chamar 1 vez (antes do loop)
 void Shader_TextureScript(unsigned int ID)
 {
@@ -79,10 +80,8 @@ int main()
 	unsigned int indices2[] = {  // note that we start from 0!
 		0, 1, 2,   // first triangle
 	};
+
 	//############################################################################################################
-
-	
-
 	Texture containerTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/container.jpg"};
 	Texture dogTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/dog.jpg"};
 	Shader blinkingShader{
@@ -91,7 +90,8 @@ int main()
 						Shader_BlinkingScript
 	};
 
-	//** default parameter of callback not working
+
+	////** default parameter of callback not working
 	Shader containerShader{
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureVertex.glsl",
 						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureFragment.glsl",
@@ -106,10 +106,16 @@ int main()
 						NULL
 	};
 
+	Shader defaultShader{
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultVertex.glsl",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultFragment.glsl" ,
+						NULL
+	};
+
 	Model modelsArr[] = {
-		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex)},
-		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), containerShader},//retangulo
-		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), dogShader }//triangulo
+		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex), defaultShader},
+		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), blinkingShader},//retangulO
+		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), dogShader},//triangulo
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);

@@ -8,14 +8,14 @@ Shader::Shader()
 }
 
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath, void (*customCalback)(unsigned int ID) = NULL)
+Shader::Shader(const char* vertexPath, const char* fragmentPath, void (*customCalback)(unsigned int ID))
 {
 	_uniformCallback = customCalback;
 	setupShader(vertexPath, fragmentPath);
 
 }
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath, Texture texture, void (*customCalback)(unsigned int ID) = NULL)
+Shader::Shader(const char* vertexPath, const char* fragmentPath, Texture texture, void (*customCalback)(unsigned int ID))
 {
 	_texture = &texture;
 	_uniformCallback = customCalback;
@@ -116,6 +116,10 @@ void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
 
 void Shader::use()
 {
+
+	glUseProgram(ID);
+	//** Não esta completamente abstraida. O usuário ainda tem que chamar as funções de glUniform bla bla bla na função de callback;
+
 	if (_texture != NULL)
 	{
 		_texture->ActivateTexture();
@@ -125,10 +129,6 @@ void Shader::use()
 	{
 		_uniformCallback(ID);
 	}
-
-	glUseProgram(ID);
-	//** Não esta completamente abstraida. O usuário ainda tem que chamar as funções de glUniform bla bla bla na função de callback;
-	
 	
 }
 
