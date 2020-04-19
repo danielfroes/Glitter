@@ -1,4 +1,4 @@
-#include "Model.h"
+#include "Model.hpp"
 
 //** fazer o shader ficar como um default: (..., Shader customShader = Shader())
 Model::Model(float vertices[], int sizeVertices, unsigned int indices[], int sizeIndices, Shader customShader )

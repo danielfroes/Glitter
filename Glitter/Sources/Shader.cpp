@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "Shader.hpp"
 
 
 Shader::Shader()
@@ -56,6 +56,8 @@ void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
 	{
 
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl << e.code() << std::endl;
+		std::cout << "ERROR::FILE" << vertexPath << std::endl;
+		std::cout << "ERROR::FILE" << fragmentPath << std::endl;
 	}
 
 	const char* vShaderCode = vertexCode.c_str();
@@ -76,6 +78,7 @@ void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
 	{
 		glGetShaderInfoLog(vertex, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cout << "ERROR::FILE" << vertexPath << std::endl;
 	}
 
 	unsigned int fragment;
@@ -90,6 +93,7 @@ void Shader::setupShader(const char* vertexPath , const char* fragmentPath )
 	{
 		glGetShaderInfoLog(fragment, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		std::cout << "ERROR::FILE" << fragmentPath << std::endl;
 	}
 
 

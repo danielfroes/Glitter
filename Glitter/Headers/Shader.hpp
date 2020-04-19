@@ -39,8 +39,8 @@ class Shader
 		//**Generalizar 
 		void (*_uniformCallback)(unsigned int ID) {};
 
-		const char* _defaultVertexPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultVertex.glsl";
-		const char* _defaultFragmentPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultFragment.glsl";
+		const char* _defaultVertexPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/default.vert";
+		const char* _defaultFragmentPath = "C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/default.frag";
 	/*	const char* _defaultVertexPath = "Default/defaultVertex.glsl";
 		const char* _defaultFragmentPath = "Default/defaultFragment.glsl";*/
 };

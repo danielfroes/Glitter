@@ -1,12 +1,15 @@
 #include "WindowHolder.hpp"
-#include "Model.h"
-#include "Shader.h"
+#include "Model.hpp"
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
 
@@ -37,6 +40,18 @@ void Shader_TextureScript(unsigned int ID)
 	//
 	//uniformLocation = glGetUniformLocation(ID, "interpolationValue");
 	//glUniform1f(uniformLocation, value);
+}
+
+
+
+void Shader_RotateScript(unsigned int ID)
+{
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+	
+	unsigned int uniformLocation = glGetUniformLocation(ID, "transform");
+	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
+	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(trans));
 }
 
 int main()
@@ -82,40 +97,34 @@ int main()
 	};
 
 	//############################################################################################################
-	Texture containerTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/container.jpg"};
 	Texture dogTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/dog.jpg"};
+
 	Shader blinkingShader{
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinkingVertex.glsl",
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinkingFragment.glsl",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinking.vert",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Blinking/blinking.frag",
 						Shader_BlinkingScript
 	};
 
 
 	////** default parameter of callback not working
-	Shader containerShader{
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureVertex.glsl",
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureFragment.glsl",
-						containerTex,
-						NULL
-	};
-
 	Shader dogShader{
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureVertex.glsl",
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTextureFragment.glsl",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTexture.vert",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/DefaultTexture/dTexture.frag",
 						dogTex,
 						NULL
 	};
 
-	Shader defaultShader{
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultVertex.glsl",
-						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Default/defaultFragment.glsl" ,
-						NULL
+	Shader rotateShader{
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Transform/transform.vert",
+						"C:/Users/danie/Documents/OpenGL/Glitter/Shaders/Transform/transform.frag",
+						dogTex,
+						Shader_RotateScript
 	};
 
 	Model modelsArr[] = {
-		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex), defaultShader},
-		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), blinkingShader},//retangulO
-		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), dogShader},//triangulo
+		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex)},
+		Model{vertices1, sizeof(vertices1), indices1, sizeof(indices1), dogShader},//retangulO
+		Model{vertices2, sizeof(vertices2), indices2, sizeof(indices2), blinkingShader},//triangulo
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
