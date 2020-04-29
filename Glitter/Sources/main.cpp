@@ -46,12 +46,29 @@ void Shader_TextureScript(unsigned int ID)
 
 void Shader_RotateScript(unsigned int ID)
 {
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	
-	unsigned int uniformLocation = glGetUniformLocation(ID, "transform");
+	
+	glm::mat4 view = glm::mat4(1.0f);
+	//translating in the reverse direction to simulate the camera
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+	glm::mat4 projection;
+	//args: FOV angle, aspect ratio, near plane, far plane 
+	projection = glm::perspective(glm::radians(45.0f), 1000.0f / 600.0f, 0.1f, 100.0f);
+
+	unsigned int uniformLocation = glGetUniformLocation(ID, "model");
 	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
-	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(trans));
+	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(model));
+
+	uniformLocation = glGetUniformLocation(ID, "view");
+	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
+	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(view));
+
+	uniformLocation = glGetUniformLocation(ID, "projection");
+	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
+	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
 int main()
