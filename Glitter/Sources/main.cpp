@@ -1,6 +1,6 @@
 #include "WindowHolder.hpp"
 #include "Model.hpp"
-
+#include "Input.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -46,9 +46,13 @@ void Shader_TextureScript(unsigned int ID)
 
 void Shader_RotateScript(unsigned int ID)
 {
+	if (Input::GetKey(GLFW_KEY_ENTER))
+		std::cout << "input detectado" << std::endl;
+
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 	
+
 	
 	glm::mat4 view = glm::mat4(1.0f);
 	//translating in the reverse direction to simulate the camera
@@ -73,7 +77,6 @@ void Shader_RotateScript(unsigned int ID)
 
 int main()
 {
-
 	//need to be at the top because it configure some GLFW sttuf
 	WindowHolder windowHolder;
 	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
@@ -83,10 +86,10 @@ int main()
 
 	//############################################################################################################
 	//float bgPanelVert[] = {
-	//	-1.0f, -1.0f, 0.0f, 0.8f, 0.6f, 0.6f, 0.0f, 0.0f,// left - bot
-	//	1.0f, -1.0f, 0.0f,  0.7f, 0.6f, 0.6f, 5.0f, 0.0f,//right - bot
-	//	-1.0f, 1.0f, 0.0f, 0.4f, 0.6f, 0.6f, 0.0f, 5.0f,// left - top
-	//	1.0f, 1.0f, 0.0f, 0.1f, 0.6f, 0.6f, 5.0f, 5.0f//right - top
+	//	-1.0f, -1.0f, 1.0f, 0.8f, 0.6f, 0.6f, 0.0f, 0.0f,// left - bot
+	//	1.0f, -1.0f, 1.0f,  0.7f, 0.6f, 0.6f, 5.0f, 0.0f,//right - bot
+	//	-1.0f, 1.0f, 1.0f, 0.4f, 0.6f, 0.6f, 0.0f, 5.0f,// left - top
+	//	1.0f, 1.0f, 1.0f, 0.1f, 0.6f, 0.6f, 5.0f, 5.0f//right - top
 	//};
 	//unsigned int bgPanelIndex[] = {
 	//	0, 1, 2,
@@ -133,8 +136,6 @@ int main()
 		-0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f,  0.0f, 1.0f,// top left 
 	};
 
-
-
 	unsigned int cubeIndex[] = {
 		0, 1, 2, 0, 2, 3,    // front
 		4, 5, 6, 4, 6, 7,    // back
@@ -143,8 +144,6 @@ int main()
 		16, 17, 18, 16, 18, 19,   // right
 		20, 21, 22, 20, 22, 23,   // left
 	};
-
-
 
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
@@ -159,10 +158,8 @@ int main()
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+//############################################################################################################
 
-
-
-	//############################################################################################################
 	Texture dogTex{ "C:/Users/danie/Documents/OpenGL/Glitter/Textures/dog.jpg"};
 
 	Shader blinkingShader{
@@ -207,10 +204,14 @@ int main()
 
 int RenderLoop(WindowHolder windowHolder, Model models[] , int numModels)
 {
+
+
+	Input::SetWindow(&windowHolder);
+
 	while (!glfwWindowShouldClose(windowHolder.getWindow()))
 	{
 		//input
-		processInput(windowHolder.getWindow());
+		/*processInput(windowHolder.getWindow());*/
 
 		//rendering commands//**talvez colocor no windowHolder
 		glClearColor(0.8f, 0.8f, 1.0f, 1.0f); //set the color that will clear the screen
@@ -220,11 +221,7 @@ int RenderLoop(WindowHolder windowHolder, Model models[] , int numModels)
 
 		for(int i = 0; i < numModels; i ++)
 		{	
-			/*glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture1);
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, texture2);*/
-
+			
 			models[i].setupToRender(); //Bind VAO of the object
 			
 			//arg: primitive type to draw, how many indices to draw, type of the indices, offset in EBO (or pass in a index array); 
@@ -247,6 +244,7 @@ int RenderLoop(WindowHolder windowHolder, Model models[] , int numModels)
 
 void processInput(GLFWwindow* window)
 {
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		glfwSetWindowShouldClose(window, true);

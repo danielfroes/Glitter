@@ -3,9 +3,11 @@
 #pragma once
 
 
+#include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <Shader.hpp>
+
 
 class Model
 {
@@ -25,6 +27,10 @@ private:
 	unsigned int _VBO;
 	unsigned int _EBO;
 	unsigned int _VAO;
+
+	//possivel classe transform
+	glm::vec3 position;
+
 
 	Shader _shader;
 

@@ -40,6 +40,7 @@ void WindowHolder::createWindow(int width, int height, const char* title)
 	glViewport(0, 0, width, height);		//set up the viewport of the window; coordinate of the left corner of the window and the viewport dimensions  
 
 	glfwSetFramebufferSizeCallback(_window, this->framebufferSizeCallback);		//when window is risezed calls framebuffer_size_callback()
+	
 }
 
 WindowHolder::~WindowHolder()
