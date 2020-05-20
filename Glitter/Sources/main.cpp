@@ -1,6 +1,8 @@
 #include "WindowHolder.hpp"
 #include "Model.hpp"
 #include "Input.hpp"
+#include "Camera.hpp"
+
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -13,73 +15,11 @@
 
 
 
-// Váriáveis globais
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f); //origin
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f); //front vec
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f); //up vec
-
-float lastX = 400, lastY = 300;
-
-
-float deltaTime = 0.0f;
-
-float lastFrame = 0.0f;
-
-float  yaw = -90.0f, pitch = 0.0f;
-
-float fov = 45.0f;
 
 
 
 int RenderLoop(WindowHolder windowHolder, Model models[], int numModels);
 void processInput();
-
-
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
-
-	lastX = xpos;
-
-	lastY = ypos;
-
-	const float sensitivity = 0.05f;
-
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	yaw += xoffset;
-	pitch += yoffset;
-
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(direction);
-
-}
-
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
-
-	
-	if (fov >= 1.0f && fov <= 45.0f)
-		fov -= yoffset;
-
-	if (fov <= 1.0f)
-		fov = 1.0f;
-	else if (fov >= 45.0f)
-		fov = 45.0f;
-
-	std::cout << "fov: " << fov << std::endl;
-}
 
 
 
@@ -115,10 +55,10 @@ void Shader_TransformScript(unsigned int ID)
 	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(model));
 
 
-
-
 	glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	view = Camera::GetView();
+
+
 	uniformLocation = glGetUniformLocation(ID, "view");
 	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
 	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(view));
@@ -126,7 +66,8 @@ void Shader_TransformScript(unsigned int ID)
 
 	glm::mat4 projection;
 	//args: FOV angle, aspect ratio, near plane, far plane 
-	projection = glm::perspective(glm::radians(fov), 1000.0f / 600.0f, 0.1f, 100.0f);
+
+	projection = Camera::GetPerspective();
 	uniformLocation = glGetUniformLocation(ID, "projection");
 	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
 	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
@@ -143,8 +84,9 @@ void Shader_TransformScript2(unsigned int ID)
 	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(model));
 
 
+
 	glm::mat4 view = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	view = Camera::GetView();
 	uniformLocation = glGetUniformLocation(ID, "view");
 	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
 	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(view));
@@ -152,7 +94,8 @@ void Shader_TransformScript2(unsigned int ID)
 
 	glm::mat4 projection;
 	//args: FOV angle, aspect ratio, near plane, far plane 
-	projection = glm::perspective(glm::radians(fov), 1000.0f / 600.0f, 0.1f, 100.0f);
+
+	projection = Camera::GetPerspective();
 	uniformLocation = glGetUniformLocation(ID, "projection");
 	//args: uniform location in shader program, how many matrices sending, transpose flag, matrix datas
 	glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
@@ -168,20 +111,22 @@ int main()
 	WindowHolder windowHolder;
 	windowHolder.createWindow(1000, 600, "Pagina do Daniel");
 
+	//iniciaCamera
+	Camera camera(&windowHolder);
 
 	glEnable(GL_DEPTH_TEST);
 
 	//############################################################################################################
-	//float bgPanelVert[] = {
-	//	-1.0f, -1.0f, 1.0f, 0.8f, 0.6f, 0.6f, 0.0f, 0.0f,// left - bot
-	//	1.0f, -1.0f, 1.0f,  0.7f, 0.6f, 0.6f, 5.0f, 0.0f,//right - bot
-	//	-1.0f, 1.0f, 1.0f, 0.4f, 0.6f, 0.6f, 0.0f, 5.0f,// left - top
-	//	1.0f, 1.0f, 1.0f, 0.1f, 0.6f, 0.6f, 5.0f, 5.0f//right - top
-	//};
-	//unsigned int bgPanelIndex[] = {
-	//	0, 1, 2,
-	//	1, 2, 3
-	//};
+	float bgPanelVert[] = {
+		-1.0f, -0.0f, -1.0f, 0.8f, 0.6f, 0.6f, 0.0f, 0.0f,// left - bot
+		1.0f, -0.0f, -1.0f,  0.7f, 0.6f, 0.6f, 5.0f, 0.0f,//right - bot
+		-1.0f, 0.0f, 1.0f, 0.4f, 0.6f, 0.6f, 0.0f, 5.0f,// left - top
+		1.0f, 0.0f, 1.0f, 0.1f, 0.6f, 0.6f, 5.0f, 5.0f//right - top
+	};
+	unsigned int bgPanelIndex[] = {
+		0, 1, 2,
+		1, 2, 3
+	};
 
 	//**Decidir oq fazer para se tem cor ou não
 	
@@ -280,9 +225,10 @@ int main()
 
 
 	Model modelsArr[] = {
-		//Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex)},
+		
 		Model{cubeVert, sizeof(cubeVert), cubeIndex, sizeof(cubeIndex), transformShader},
-		Model{cubeVert, sizeof(cubeVert), cubeIndex, sizeof(cubeIndex), transformShader2}
+		Model{cubeVert, sizeof(cubeVert), cubeIndex, sizeof(cubeIndex), transformShader2},
+		Model{bgPanelVert, sizeof(bgPanelVert), bgPanelIndex, sizeof(bgPanelIndex)},
 	};
 
 	int numModels = sizeof(modelsArr) / sizeof(Model);
@@ -301,9 +247,7 @@ int main()
 int RenderLoop(WindowHolder windowHolder, Model models[] , int numModels)
 {
 
-	glfwSetInputMode(windowHolder.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(windowHolder.getWindow(), mouse_callback);
-	glfwSetScrollCallback(windowHolder.getWindow(), scroll_callback);
+
 
 
 
@@ -322,7 +266,7 @@ int RenderLoop(WindowHolder windowHolder, Model models[] , int numModels)
 		processInput();
 
 
-
+		
 		//rendering commands//**talvez colocor no windowHolder
 		glClearColor(0.8f, 0.8f, 1.0f, 1.0f); //set the color that will clear the screen
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer
@@ -342,10 +286,7 @@ int RenderLoop(WindowHolder windowHolder, Model models[] , int numModels)
 		glfwPollEvents();	//checks if any input event are triggered, and calls the corresponding functions		
 
 
-		//Calculate the time of the last frame
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		
 	}
 
 
@@ -371,21 +312,8 @@ void processInput()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-
-
-	const float cameraSpeed =  2.5f * deltaTime;
-	if (Input::GetKey(GLFW_KEY_W))
-	{
-		cameraPos += cameraSpeed * cameraFront;
-		std::cout << "W detectado" << std::endl;
-	}
-	if (Input::GetKey(GLFW_KEY_S))
-		cameraPos -= cameraSpeed * cameraFront;
-	if (Input::GetKey(GLFW_KEY_D))
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (Input::GetKey(GLFW_KEY_A))
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
+	Camera::ProcessInput();
+	
 }
 
 
